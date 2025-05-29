@@ -19,7 +19,7 @@ with open("quiz.json", encoding="utf-8") as f:
 user_data = {}
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    keyboard = "لطفاً یکی از گزینه‌های زیر را انتخاب کنید:
+    keyboard = "لطفاً یکی از گزینه‌های زیر را انتخاب کنید:"
 "
     keyboard += "📘 درسنامه
 📝 تمرین
