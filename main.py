@@ -19,11 +19,8 @@ with open("quiz.json", encoding="utf-8") as f:
 user_data = {}
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    keyboard = "لطفاً یکی از گزینه‌های زیر را انتخاب کنید:"
-
-    keyboard += "📘 درسنامه
-📝 تمرین
-🧪 آزمون"
+    keyboard = "لطفاً یکی از گزینه‌های زیر را انتخاب کنید:\n\n"  # افزودن \n برای ایجاد خط جدید
+    keyboard += "📘 درسنامه\n📝 تمرین\n🧪 آزمون"
     await update.message.reply_text(keyboard)
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -35,13 +32,11 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     elif text == "📝 تمرین":
         user_data[user_id] = {"type": "exercise", "index": 0}
         question = EXERCISES[0]["question"]
-        await update.message.reply_text(f"تمرین ۱:
-{question}")
+        await update.message.reply_text(f"تمرین ۱:\n{question}")
     elif text == "🧪 آزمون":
         user_data[user_id] = {"type": "quiz", "index": 0, "score": 0}
         question = QUIZ[0]["question"]
-        await update.message.reply_text(f"آزمون ۱:
-{question}")
+        await update.message.reply_text(f"آزمون ۱:\n{question}")
     elif user_id in user_data:
         data = user_data[user_id]
         index = data["index"]
@@ -57,8 +52,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             if index < len(EXERCISES):
                 user_data[user_id]["index"] = index
                 question = EXERCISES[index]["question"]
-                await update.message.reply_text(f"تمرین {index+1}:
-{question}")
+                await update.message.reply_text(f"تمرین {index+1}:\n{question}")
             else:
                 await update.message.reply_text("🎉 تمام تمرین‌ها تمام شدند.")
                 del user_data[user_id]
@@ -75,8 +69,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             if index < len(QUIZ):
                 user_data[user_id]["index"] = index
                 question = QUIZ[index]["question"]
-                await update.message.reply_text(f"سؤال {index+1}:
-{question}")
+                await update.message.reply_text(f"سؤال {index+1}:\n{question}")
             else:
                 score = user_data[user_id]["score"]
                 total = len(QUIZ)
@@ -86,8 +79,15 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("دستور را متوجه نشدم. لطفاً یکی از گزینه‌ها را بفرستید.")
 
 if __name__ == "__main__":
+    # اجرا کردن وب‌سرور در یک Thread جداگانه
     threading.Thread(target=webserver.app.run, kwargs={"host": "0.0.0.0", "port": 8000}).start()
+    
+    # ساخت اپلیکیشن بات
     app = ApplicationBuilder().token(TOKEN).build()
+    
+    # افزودن هندلرها
     app.add_handler(CommandHandler("start", start))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+    
+    # شروع گرفتن آپدیت‌ها
     app.run_polling()
